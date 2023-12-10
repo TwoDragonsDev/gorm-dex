@@ -33,13 +33,13 @@ class GormiCard extends StatelessWidget {
           color: Colors.black,
           shape: _buildCardShape(),
           shadowColor: Colors.black,
-          elevation: 4,
+          elevation: 2,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 18),
               const Divider(
-                height: 5,
+                height: 2,
                 color: Colors.black,
               ),
               _buildImage(),
@@ -82,11 +82,11 @@ class GormiCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildNameText(),
-              const SizedBox(height: 16),
+              const SizedBox(height: 5),
               Row(
                 children: [
                   _buildPopoloText(),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 5),
                   _buildSerieText()
                 ],
               ),
@@ -108,8 +108,8 @@ class GormiCard extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(50),
       child: SizedBox(
-        width: 100,
-        height: 100,
+        width: 50,
+        height: 50,
         child: Image.asset(
           image,
           height: 200,
@@ -123,7 +123,7 @@ class GormiCard extends StatelessWidget {
     return Text(
       name,
       style: TextStyle(
-        fontSize: 27,
+        fontSize: 10,
         fontWeight: FontWeight.bold,
         color: textColor,
       ),
@@ -143,7 +143,7 @@ class GormiCard extends StatelessWidget {
       child: Text(
         popolo,
         style: const TextStyle(
-          fontSize: 11,
+          fontSize: 10,
           color: Colors.white,
         ),
       ),
@@ -164,7 +164,7 @@ class GormiCard extends StatelessWidget {
         child: Text(
           serie,
           style: const TextStyle(
-            fontSize: 11,
+            fontSize: 10,
             color: Colors.black,
           ),
         ),
@@ -182,7 +182,7 @@ class GormiCard extends StatelessWidget {
           child: const Icon(
             Icons.search,
             color: Colors.white,
-            size: 30.0,
+            size: 15,
           ),
         ),
         const SizedBox(width: 8),
@@ -196,7 +196,7 @@ class GormiCard extends StatelessWidget {
           child: Icon(
             ownIt.value ? Icons.star : Icons.star_border,
             color: ownIt.value ? Colors.yellow : Colors.grey,
-            size: 35.0,
+            size: 15,
           ),
         ),
       ],

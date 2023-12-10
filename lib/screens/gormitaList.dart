@@ -77,7 +77,7 @@ class _PopoliListState extends State<PopoliList> {
         child: Text(
           serieName,
           style: const TextStyle(
-            fontSize: 23,
+            fontSize: 10,
             fontWeight: FontWeight.bold,
             letterSpacing: 1,
             color: AppColors.textColor,

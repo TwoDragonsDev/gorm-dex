@@ -6,7 +6,7 @@ import '../db/sql_helper.dart';
 import '../widgets/series_widget.dart';
 
 class SeriesList extends StatefulWidget {
-  const SeriesList({super.key});
+  const SeriesList({Key? key}) : super(key: key);
 
   @override
   _SeriesListState createState() => _SeriesListState();
@@ -65,7 +65,7 @@ class _SeriesListState extends State<SeriesList> {
           const Text(
             "Serie Gormiti",
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 11,
               fontWeight: FontWeight.bold,
               letterSpacing: 1,
               color:
@@ -94,26 +94,14 @@ class _SeriesListState extends State<SeriesList> {
       itemCount: seriesList.length,
       shrinkWrap: true,
       itemBuilder: (BuildContext context, index) {
-        final int startIndex = index * 2;
-        final int endIndex = startIndex + 1;
-
-        return Row(
-          children: [
-            for (int i = startIndex;
-                i < seriesList.length && i <= endIndex;
-                i++)
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _navigateToPeople(seriesList[i], context),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: SeriesWidget(
-                      serieName: seriesList[i],
-                    ),
-                  ),
-                ),
-              ),
-          ],
+        return GestureDetector(
+          onTap: () => _navigateToPeople(seriesList[index], context),
+          child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: SeriesWidget(
+              serieName: seriesList[index],
+            ),
+          ),
         );
       },
     );
