@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../db/sql_helper.dart';
@@ -81,7 +82,11 @@ class GormiCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildNameText(),
+              GestureDetector(
+                  onTap: () {
+                    _navigateToDetail(id);
+                  },
+                  child: _buildNameText()),
               const SizedBox(height: 16),
               Row(
                 children: [
