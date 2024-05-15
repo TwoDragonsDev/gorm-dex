@@ -9,7 +9,7 @@ class Gormita {
   final String serie;
   final RxBool ownIt;
   final bool isEdicola;
-
+  final RxBool isFavorite;
 
   const Gormita({
     required this.id,
@@ -20,6 +20,7 @@ class Gormita {
     required this.popolo,
     required this.serie,
     required this.ownIt,
+    required this.isFavorite,
   });
 
   Gormita.fromMap(Map<String, dynamic> result)
@@ -30,7 +31,9 @@ class Gormita {
         image = result["image"],
         popolo = result["popolo"],
         serie = result["serie"],
-        ownIt = (result["own_it"] == 1).obs; // Converti da INTEGER a bool
+        ownIt = (result["own_it"] == 1).obs,
+        isFavorite =
+            (result["favorite"] == 1).obs; // Converti da INTEGER a bool
   Map<String, Object> toMap() {
     return {
       'id': id,
@@ -41,6 +44,7 @@ class Gormita {
       'popolo': popolo,
       'serie': serie,
       'ownIt': ownIt,
+      'isFavorite': isFavorite,
     };
   }
 }
