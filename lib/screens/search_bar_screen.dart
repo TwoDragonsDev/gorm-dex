@@ -132,6 +132,7 @@ class _SearchBarScreenState extends State<SearchBarScreen> {
                   id: filteredGormitiList[index].id,
                   image: filteredGormitiList[index].image,
                   textColor: Colors.white,
+                  isFavorite: filteredGormitiList[index].isFavorite,
                 ),
               );
             },

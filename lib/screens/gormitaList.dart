@@ -151,6 +151,7 @@ class _PopoliListState extends State<PopoliList> {
                   id: gormitiList[index].id,
                   image: gormitiList[index].image,
                   textColor: Colors.white,
+                  isFavorite: gormitiList[index].isFavorite,
                 ),
               );
             },

@@ -106,6 +106,19 @@ class SQLHelper {
     }
   }
 
+  Future<bool> favoriteGormita(int id, bool isFavorite) async {
+    try {
+      final Database database = await initializedDB();
+      await database.rawQuery(
+        'UPDATE gormiti SET favorite = ? WHERE id = ?',
+        [isFavorite ? 1 : 0, id],
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
 // Get all gormiti
   static Future<List<Gormita>> getAllGormitiList() async {
     final Database database = await initializedDB();

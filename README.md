@@ -13,7 +13,14 @@ Screenshots:
 ![checklist](screenshots/checklist.jpg)
 
 
-Autori:
+**Starting**:
+
+Run this the first time you open this project
+```console
+flutter pub get
+```
+
+**Autori**:
 - [Tydragon00](https://github.com/Tydragon00)
 - [Kindaglia](https://github.com/Kindaglia)
 - [PatricReineri](https://github.com/PatricReineri)

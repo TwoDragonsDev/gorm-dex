@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../db/sql_helper.dart';
@@ -11,6 +13,7 @@ class GormiCard extends StatelessWidget {
   final bool isEdicola;
   final Color textColor;
   final RxBool ownIt; // Utilizziamo RxBool per una variabile osservabile
+  final RxBool isFavorite; // Utilizziamo RxBool per una variabile osservabile
   final int id;
   final String image; // Aggiunto percorso dell'immagine
 
@@ -24,7 +27,8 @@ class GormiCard extends StatelessWidget {
     required this.textColor,
     required this.ownIt,
     required this.id,
-    required this.image, // Aggiunto percorso dell'immagine
+    required this.image,
+    required this.isFavorite, // Aggiunto percorso dell'immagine
   }) : super(key: key);
 
   @override
@@ -81,7 +85,11 @@ class GormiCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildNameText(),
+              GestureDetector(
+                  onTap: () {
+                    _navigateToDetail(id);
+                  },
+                  child: _buildNameText()),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -174,6 +182,7 @@ class GormiCard extends StatelessWidget {
 
   Widget _buildOwnCheck() {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
           onTap: () async {
@@ -186,18 +195,39 @@ class GormiCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        GestureDetector(
-          onTap: () async {
-            bool isOk = await SQLHelper().ownChangerGormita(id, !ownIt.value);
-            if (isOk) {
-              ownIt.value = !ownIt.value;
-            }
-          },
-          child: Icon(
-            ownIt.value ? Icons.star : Icons.star_border,
-            color: ownIt.value ? Colors.yellow : Colors.grey,
-            size: 35.0,
-          ),
+        Column(
+          children: [
+            GestureDetector(
+              onTap: () async {
+                bool isOk =
+                    await SQLHelper().ownChangerGormita(id, !ownIt.value);
+                if (isOk) {
+                  ownIt.value = !ownIt.value;
+                }
+              },
+              child: Icon(
+                ownIt.value
+                    ? Icons.expand_circle_down_outlined
+                    : Icons.add_circle,
+                color: ownIt.value ? Colors.green : Colors.grey,
+                size: 35.0,
+              ),
+            ),
+            GestureDetector(
+              onTap: () async {
+                bool isOk =
+                    await SQLHelper().favoriteGormita(id, !isFavorite.value);
+                if (isOk) {
+                  isFavorite.value = !isFavorite.value;
+                }
+              },
+              child: Icon(
+                isFavorite.value ? Icons.star : Icons.star_border,
+                color: isFavorite.value ? Colors.yellow : Colors.grey,
+                size: 35.0,
+              ),
+            )
+          ],
         ),
       ],
     );
