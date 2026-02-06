@@ -11,28 +11,29 @@ class SeriesWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Visibility(
       visible: serieName.isNotEmpty,
       child: Padding(
         padding: const EdgeInsets.only(top: 9.0),
         child: Card(
-          color: const Color.fromARGB(255, 0, 0, 0),
+          color: colorScheme.surfaceContainerHighest,
           child: Container(
             height: 120,
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: colorScheme.surfaceContainerHighest,
               border: Border.all(
-                color:
-                    const Color.fromARGB(255, 43, 43, 43), // Colore del bordo
-                width: 2.0, // Larghezza del bordo
+                color: colorScheme.outlineVariant,
+                width: 2.0,
               ),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  color: Colors.black, // Colore dell'ombra
-                  offset: Offset(0, 4), // Offset (spostamento) dell'ombra
-                  blurRadius: 4.0, // Raggio di sfocatura dell'ombra
-                  spreadRadius: 1.0, // Raggio di diffusione dell'ombra
+                  color: colorScheme.shadow.withValues(alpha: 0.3),
+                  offset: const Offset(0, 4),
+                  blurRadius: 4.0,
+                  spreadRadius: 1.0,
                 )
               ],
             ),
@@ -42,12 +43,14 @@ class SeriesWidget extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Center(
-                      child: Text(serieName,
-                          style: TextStyle(
-                              fontFamily: GoogleFonts.roboto().fontFamily,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20)),
+                      child: Text(
+                        serieName,
+                        style: GoogleFonts.roboto(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
                     ),
                   ),
                 ),

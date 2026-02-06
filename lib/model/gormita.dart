@@ -1,5 +1,3 @@
-import 'package:get/get.dart';
-
 class Gormita {
   final int id;
   final String name;
@@ -7,9 +5,9 @@ class Gormita {
   final String image;
   final String popolo;
   final String serie;
-  final RxBool ownIt;
+  final bool ownIt;
   final bool isEdicola;
-  final RxBool isFavorite;
+  final bool isFavorite;
 
   const Gormita({
     required this.id,
@@ -31,9 +29,9 @@ class Gormita {
         image = result["image"],
         popolo = result["popolo"],
         serie = result["serie"],
-        ownIt = (result["own_it"] == 1).obs,
-        isFavorite =
-            (result["favorite"] == 1).obs; // Converti da INTEGER a bool
+        ownIt = result["own_it"] == 1,
+        isFavorite = result["favorite"] == 1;
+
   Map<String, Object> toMap() {
     return {
       'id': id,
@@ -46,5 +44,29 @@ class Gormita {
       'ownIt': ownIt,
       'isFavorite': isFavorite,
     };
+  }
+
+  Gormita copyWith({
+    int? id,
+    String? name,
+    String? availability,
+    String? image,
+    String? popolo,
+    String? serie,
+    bool? ownIt,
+    bool? isEdicola,
+    bool? isFavorite,
+  }) {
+    return Gormita(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      availability: availability ?? this.availability,
+      image: image ?? this.image,
+      popolo: popolo ?? this.popolo,
+      serie: serie ?? this.serie,
+      ownIt: ownIt ?? this.ownIt,
+      isEdicola: isEdicola ?? this.isEdicola,
+      isFavorite: isFavorite ?? this.isFavorite,
+    );
   }
 }

@@ -1,98 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:gorm_wiki/utility/colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../db/sql_helper.dart';
+import '../features/series/presentation/state/gormiti_provider.dart';
 import '../widgets/series_widget.dart';
 
-class SeriesList extends StatefulWidget {
+class SeriesList extends ConsumerWidget {
   const SeriesList({super.key});
 
   @override
-  _SeriesListState createState() => _SeriesListState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final seriesAsync = ref.watch(seriesListProvider);
+    final colorScheme = Theme.of(context).colorScheme;
 
-class _SeriesListState extends State<SeriesList> {
-  List<String> seriesList = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSeriesList();
-  }
-
-  Future<void> _loadSeriesList() async {
-    final List<String> result = await SQLHelper.getDistinctSeries();
-    setState(() {
-      seriesList = result;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      appBar: _buildAppBar(),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Column(
+      backgroundColor: colorScheme.surface,
+      appBar: AppBar(
+        title: Row(
           children: [
-            Expanded(
-              child: _buildSeriesList(),
+            IconButton(
+              icon: Icon(Icons.account_circle, color: colorScheme.onSurface),
+              onPressed: () => context.push('/profile'),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              "Serie Gormiti",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+                color: colorScheme.onSurface,
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  AppBar _buildAppBar() {
-    return AppBar(
-      backgroundColor: AppColors.backgroundColor,
-      elevation: 0,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
+        actions: [
           IconButton(
-            icon: const Icon(Icons.account_circle,
-                color: AppColors.textColor), // Icona del profilo
-            onPressed: () {
-              _navigateToProfile(); // Sostituisci con la tua logica per navigare alla pagina del profilo
-            },
+            icon: Icon(Icons.search, color: colorScheme.onSurface),
+            onPressed: () => context.push('/search'),
           ),
-          const SizedBox(
-              width: 8), // Spazio tra l'icona del profilo e il titolo
-          const Text(
-            "Serie Gormiti",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-              color:
-                  AppColors.textColor, // Imposta il colore del testo su bianco
-            ),
-          )
         ],
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(
-            Icons.search,
-            color: AppColors.textColor,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: seriesAsync.when(
+          data: (seriesList) => _buildSeriesList(seriesList, context),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stack) => Center(
+            child: Text('Errore: $error', style: TextStyle(color: colorScheme.error)),
           ),
-          onPressed: () {
-            _navigateToSearch();
-          },
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildSeriesList() {
+  Widget _buildSeriesList(List<String> seriesList, BuildContext context) {
     return ListView.builder(
       scrollDirection: Axis.vertical,
-      itemCount: seriesList.length,
-      shrinkWrap: true,
+      itemCount: (seriesList.length / 2).ceil(),
       itemBuilder: (BuildContext context, index) {
         final int startIndex = index * 2;
         final int endIndex = startIndex + 1;
@@ -104,7 +69,7 @@ class _SeriesListState extends State<SeriesList> {
                 i++)
               Expanded(
                 child: GestureDetector(
-                  onTap: () => _navigateToPeople(seriesList[i], context),
+                  onTap: () => context.push('/popoli?serieName=${Uri.encodeComponent(seriesList[i])}&serieId=$i'),
                   child: AspectRatio(
                     aspectRatio: 16 / 9,
                     child: SeriesWidget(
@@ -117,17 +82,5 @@ class _SeriesListState extends State<SeriesList> {
         );
       },
     );
-  }
-
-  void _navigateToPeople(String serieName, BuildContext context) {
-    Get.toNamed('/Popoli', arguments: serieName);
-  }
-
-  void _navigateToSearch() {
-    Get.toNamed('/SearchBar', arguments: "");
-  }
-
-  void _navigateToProfile() {
-    Get.toNamed('/Profile', arguments: "");
   }
 }

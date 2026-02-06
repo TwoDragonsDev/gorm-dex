@@ -2,15 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:gorm_wiki/utility/colors.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../db/sql_helper.dart';
+import '../features/series/presentation/state/gormiti_provider.dart';
 import '../widgets/profile_widget.dart';
 
-class Profile extends StatelessWidget {
+class Profile extends ConsumerWidget {
   const Profile({super.key});
 
   Future<void> _shareJsonFile() async {
@@ -22,54 +23,15 @@ class Profile extends StatelessWidget {
     File tempFile = File('${tempDir.path}/gorm-export.json');
     await tempFile.writeAsString(jsonString);
 
-    await Share.shareFiles([tempFile.path], text: 'Check out this JSON file');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      appBar: _buildAppBar(),
-      body: ProfileWidget(),
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(tempFile.path)],
+        text: 'Check out this JSON file',
+      ),
     );
   }
 
-  AppBar _buildAppBar() {
-    return AppBar(
-      backgroundColor: AppColors.backgroundColor,
-      iconTheme: IconThemeData(
-        color: AppColors.textColor,
-      ),
-      title: const Text(
-        'Profilo',
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1,
-          color: AppColors.textColor,
-        ),
-      ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.share, color: AppColors.textColor),
-          onPressed: () {
-            _shareJsonFile();
-          },
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.storage,
-            color: AppColors.textColor,
-          ), // Aggiungi l'icona delle impostazioni qui
-          onPressed: () {
-            _importJson();
-          },
-        ),
-      ],
-    );
-  }
-
-  void _importJson() async {
+  Future<void> _importJson(BuildContext context) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
     if (result != null) {
@@ -88,20 +50,77 @@ class Profile extends StatelessWidget {
 
             bool updated = await SQLHelper.updateGormita(serie, name, ownIt);
             if (updated) {
-              print('Updated Gormita: $name in $serie');
+              debugPrint('Updated Gormita: $name in $serie');
             } else {
-              print('Failed to update Gormita: $name in $serie');
+              debugPrint('Failed to update Gormita: $name in $serie');
             }
           }
+
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Import completato!')),
+            );
+          }
         } catch (e) {
-          print('Error reading JSON file: $e');
+          debugPrint('Error reading JSON file: $e');
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Errore import: $e')),
+            );
+          }
         }
       } else {
-        print('Selected file is not a JSON file');
+        debugPrint('Selected file is not a JSON file');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Seleziona un file JSON')),
+          );
+        }
       }
     } else {
-      // User canceled the file picking
-      print('File picking canceled');
+      debugPrint('File picking canceled');
     }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final statsAsync = ref.watch(gormitiStatsProvider);
+
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: colorScheme.onSurface,
+        ),
+        title: Text(
+          'Profilo',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.share, color: colorScheme.onSurface),
+            onPressed: _shareJsonFile,
+          ),
+          IconButton(
+            icon: Icon(Icons.storage, color: colorScheme.onSurface),
+            onPressed: () => _importJson(context),
+          ),
+        ],
+      ),
+      body: statsAsync.when(
+        data: (stats) => ProfileWidget(stats: stats),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(
+          child: Text('Errore: $error',
+              style: TextStyle(color: colorScheme.error)),
+        ),
+      ),
+    );
   }
 }

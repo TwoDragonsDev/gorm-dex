@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-class CheckListCard extends StatelessWidget {
+import '../db/sql_helper.dart';
+
+class CheckListCard extends StatefulWidget {
   final String name;
   final String popolo;
   final String serie;
@@ -9,11 +10,11 @@ class CheckListCard extends StatelessWidget {
   final bool isEdicola;
   final String imagePath;
   final Color textColor;
-  final RxBool ownIt; // Utilizziamo RxBool per una variabile osservabile
+  final bool ownIt;
   final int id;
 
   const CheckListCard({
-    Key? key,
+    super.key,
     required this.name,
     required this.popolo,
     required this.serie,
@@ -23,66 +24,86 @@ class CheckListCard extends StatelessWidget {
     required this.textColor,
     required this.ownIt,
     required this.id,
-  }) : super(key: key);
+  });
+
+  @override
+  State<CheckListCard> createState() => _CheckListCardState();
+}
+
+class _CheckListCardState extends State<CheckListCard> {
+  late bool _ownIt;
+
+  @override
+  void initState() {
+    super.initState();
+    _ownIt = widget.ownIt;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Card(
-      color: Colors.black,
-      shape: _buildCardShape(),
-      shadowColor: Colors.black,
+      color: colorScheme.surfaceContainerHighest,
+      shape: _buildCardShape(colorScheme),
+      shadowColor: colorScheme.shadow,
       elevation: 4,
       child: Column(
-        //mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Divider(
+          Divider(
             height: 5,
-            color: Colors.black,
+            color: colorScheme.surface,
           ),
-          _buildImage(),
+          _buildImage(colorScheme),
         ],
       ),
     );
   }
 
-  ShapeBorder _buildCardShape() {
+  ShapeBorder _buildCardShape(ColorScheme colorScheme) {
     return RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(10),
       side: BorderSide(
-        width: 1,
-        color: ownIt.value
-            ? const Color.fromARGB(255, 0, 255, 42)
-            : const Color.fromARGB(255, 255, 0, 0),
+        width: 2,
+        color: _ownIt ? colorScheme.primary : colorScheme.error,
       ),
     );
   }
 
-  Widget _buildImage() {
-    return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.center, // Allinea al centro orizzontalmente
-      children: [
-        const Divider(
-          height: 5,
-          color: Colors.black,
-        ),
-        _buildGormitiImage(),
-        _buildNameText(),
-      ],
+  Widget _buildImage(ColorScheme colorScheme) {
+    return GestureDetector(
+      onTap: () async {
+        bool isOk = await SQLHelper().ownChangerGormita(widget.id, !_ownIt);
+        if (isOk && mounted) {
+          setState(() {
+            _ownIt = !_ownIt;
+          });
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Divider(
+            height: 5,
+            color: colorScheme.surface,
+          ),
+          _buildGormitiImage(),
+          _buildNameText(colorScheme),
+        ],
+      ),
     );
   }
 
   Widget _buildGormitiImage() {
     return Align(
-      alignment:
-          Alignment.center, // Allinea al centro orizzontalmente e verticalmente
+      alignment: Alignment.center,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: SizedBox(
           width: 40,
           height: 40,
           child: Image.asset(
-            imagePath,
+            widget.imagePath,
             height: 200,
             width: 200,
           ),
@@ -91,21 +112,19 @@ class CheckListCard extends StatelessWidget {
     );
   }
 
-  Widget _buildNameText() {
+  Widget _buildNameText(ColorScheme colorScheme) {
     return Center(
       child: SizedBox(
-        height: 30.0, // Imposta l'altezza del Container su due righe
+        height: 30.0,
         child: Align(
-          //alignment: Alignment.center,
           child: Padding(
-            padding: const EdgeInsets.only(
-                left: 5.0), // Imposta il margine a sinistra
+            padding: const EdgeInsets.only(left: 5.0),
             child: Text(
-              name,
+              widget.name,
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
-                color: textColor,
+                color: widget.textColor,
               ),
             ),
           ),
