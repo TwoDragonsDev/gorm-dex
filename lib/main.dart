@@ -1,42 +1,38 @@
+import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'screens/checkList.dart';
-import 'screens/detail.dart';
-import 'screens/gormitaList.dart';
-import 'screens/powered_by.dart';
-import 'screens/profile.dart';
-import 'screens/search_bar_screen.dart';
-import 'screens/series_list.dart';
-import 'utility/colors.dart';
+import 'app/router.dart';
+import 'app/theme.dart';
 
-Future main() async {
-  runApp(GetMaterialApp(
-    initialRoute: '/PoweredBy',
-    getPages: [
-      GetPage(name: '/PoweredBy', page: () => PoweredBy()),
-      GetPage(name: '/Series', page: () => const SeriesList()),
-      GetPage(name: '/Popoli', page: () => const PopoliList()),
-      GetPage(name: '/Profile', page: () => const Profile()),
-      GetPage(name: '/CheckList', page: () => const CheckList()),
-      GetPage(name: "/SearchBar", page: () => const SearchBarScreen()),
-      GetPage(name: '/Detail', page: () => const Detail()),
-    ],
-  ));
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-  @override
-  State<MyHomePage> createState() => MyHomePageState();
-}
-
-class MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+    return DynamicColorBuilder(
+      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+        // Use dynamic colors if available (Android 12+), otherwise use seed-based
+        final colorScheme = darkDynamic ??
+            ColorScheme.fromSeed(
+              seedColor: AppTheme.seedColor,
+              brightness: Brightness.dark,
+            );
+
+        final theme = AppTheme.buildDarkTheme(colorScheme);
+
+        return MaterialApp.router(
+          title: 'Gorm Wiki',
+          debugShowCheckedModeBanner: false,
+          theme: theme,
+          routerConfig: router,
+        );
+      },
     );
   }
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colors for Material 3 theming -->
+    <color name="seed">#4CAF50</color>
+    <color name="primary">#4CAF50</color>
+    <color name="onPrimary">#FFFFFF</color>
+    <color name="primaryContainer">#4CAF50</color>
+    <color name="onPrimaryContainer">#FFFFFF</color>
+    <color name="secondary">#81C784</color>
+    <color name="onSecondary">#000000</color>
+    <color name="secondaryContainer">#81C784</color>
+    <color name="onSecondaryContainer">#000000</color>
+    <color name="tertiary">#A5D6A7</color>
+    <color name="onTertiary">#000000</color>
+    <color name="tertiaryContainer">#A5D6A7</color>
+    <color name="onTertiaryContainer">#000000</color>
+    <color name="error">#FFB4AB</color>
+    <color name="onError">#690005</color>
+    <color name="errorContainer">#93000A</color>
+    <color name="onErrorContainer">#FFB4AB</color>
+    <color name="background">#1C1B1F</color>
+    <color name="onBackground">#E6E1E5</color>
+    <color name="surface">#1C1B1F</color>
+    <color name="onSurface">#E6E1E5</color>
+    <color name="surfaceVariant">#49454F</color>
+    <color name="onSurfaceVariant">#CAC4D0</color>
+    <color name="outline">#938F99</color>
+    <color name="outlineVariant">#49454F</color>
+    <color name="shadow">#000000</color>
+    <color name="scrim">#000000</color>
+    <color name="inverseSurface">#E6E1E5</color>
+    <color name="inverseOnSurface">#1C1B1F</color>
+    <color name="inversePrimary">#4CAF50</color>
+    <color name="surfaceTint">#4CAF50</color>
+</resources>

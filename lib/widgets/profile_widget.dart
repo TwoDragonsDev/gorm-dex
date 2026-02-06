@@ -1,67 +1,49 @@
 import 'package:flutter/material.dart';
 
-import '../db/sql_helper.dart';
+class ProfileWidget extends StatelessWidget {
+  final List<dynamic> stats;
 
-class ProfileWidget extends StatefulWidget {
-  @override
-  _ProfileWidgetState createState() => _ProfileWidgetState();
-}
-
-class _ProfileWidgetState extends State<ProfileWidget> {
-  List totalList = [];
-
-  Future<void> _loadTotalList() async {
-    final result = await SQLHelper.getOwnSerieCount2Test();
-    setState(() {
-      totalList = result;
-      print(totalList);
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTotalList();
-  }
+  const ProfileWidget({
+    super.key,
+    required this.stats,
+  });
 
   @override
   Widget build(BuildContext context) {
-    print('This is a message printed to the console from ProfileWidget');
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
-      padding: EdgeInsets.only(top: 16.0), // Aggiungi del margine sopra
+      padding: const EdgeInsets.only(top: 16.0),
       child: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 1, // Imposta il numero di card per riga a 1
-          childAspectRatio:
-              5, // Imposta il rapporto larghezza/altezza desiderato
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 1,
+          childAspectRatio: 5,
         ),
-        itemCount: totalList.length,
+        itemCount: stats.length,
         itemBuilder: (context, index) {
-          var item = totalList[index];
+          var item = stats[index];
           return Card(
             elevation: 2.0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0),
-              side: BorderSide(color: Colors.grey), // Imposta il bordo grigio
+              side: BorderSide(color: colorScheme.outline),
             ),
-            color: Colors.black, // Imposta lo sfondo nero
+            color: colorScheme.surfaceContainerHighest,
             child: ListTile(
-              contentPadding: EdgeInsets.all(8.0),
+              contentPadding: const EdgeInsets.all(8.0),
               leading: CircleAvatar(
-                backgroundColor:
-                    Colors.black, // Colore di sfondo del CircleAvatar
-                radius:
-                    35.0, // Aumenta il raggio per rendere il cerchio più grande
+                backgroundColor: colorScheme.surface,
+                radius: 35.0,
                 child: Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey, width: 2.0),
+                    border: Border.all(color: colorScheme.outline, width: 2.0),
                   ),
                   child: Center(
                     child: Text(
                       '${item['count']} / ${item['totalCount']}',
                       style: TextStyle(
-                        color: Colors.white, // Colore del testo bianco
+                        color: colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -70,8 +52,8 @@ class _ProfileWidgetState extends State<ProfileWidget> {
               title: Text(
                 '${item['serie']}',
                 style: TextStyle(
-                  color: Colors.white, // Colore del testo bianco
-                  fontWeight: FontWeight.bold, // Testo in grassetto
+                  color: colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),

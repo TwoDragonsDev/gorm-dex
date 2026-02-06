@@ -1,50 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../widgets/detailWidget.dart';
+import '../model/gormita.dart';
+import '../widgets/detail_widget.dart';
 
-class Detail extends StatefulWidget {
-  const Detail({Key? key}) : super(key: key);
+class Detail extends ConsumerStatefulWidget {
+  final Gormita gormita;
+
+  const Detail({
+    super.key,
+    required this.gormita,
+  });
 
   @override
-  _DetailState createState() => _DetailState();
+  ConsumerState<Detail> createState() => _DetailState();
 }
 
-class _DetailState extends State<Detail> {
-  late final int id;
-  final RxBool isLoading = true.obs; // Create an observable boolean variable
-
-  @override
-  void initState() {
-    super.initState();
-    id = Get.arguments as int;
-    // Simulate some asynchronous loading
-    Future.delayed(Duration(seconds: 2), () {
-      isLoading.value = false; // Set isLoading to false when the data is loaded
-    });
-  }
-
+class _DetailState extends ConsumerState<Detail> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: _buildAppBar(context),
-      body: DetailWidget(id: id),
-    );
-  }
+    final colorScheme = Theme.of(context).colorScheme;
 
-  AppBar _buildAppBar(BuildContext context) {
-    return AppBar(
-      backgroundColor: const Color.fromARGB(255, 49, 49, 49),
-      elevation: 0,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back,
-            color: Colors.white), // Aggiungi l'icona della freccia indietro
-        onPressed: () {
-          Navigator.of(context)
-              .pop(); // Torna indietro quando viene premuta la freccia indietro
-        },
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      appBar: AppBar(
+        backgroundColor: colorScheme.surfaceContainerHighest,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
+          onPressed: () => context.pop(),
+        ),
       ),
+      body: DetailWidget(gormita: widget.gormita),
     );
   }
 }

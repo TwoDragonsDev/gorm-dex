@@ -1,72 +1,85 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../db/sql_helper.dart';
+import '../features/series/presentation/state/gormiti_provider.dart';
+import '../model/gormita.dart';
 
-class GormiCard extends StatelessWidget {
-  final String name;
-  final String popolo;
-  final String serie;
-  final String availability;
-  final bool isEdicola;
+class GormiCard extends ConsumerStatefulWidget {
+  final Gormita gormita;
   final Color textColor;
-  final RxBool ownIt; // Utilizziamo RxBool per una variabile osservabile
-  final RxBool isFavorite; // Utilizziamo RxBool per una variabile osservabile
-  final int id;
-  final String image; // Aggiunto percorso dell'immagine
 
   const GormiCard({
-    Key? key,
-    required this.name,
-    required this.popolo,
-    required this.serie,
-    required this.availability,
-    required this.isEdicola,
+    super.key,
+    required this.gormita,
     required this.textColor,
-    required this.ownIt,
-    required this.id,
-    required this.image,
-    required this.isFavorite, // Aggiunto percorso dell'immagine
-  }) : super(key: key);
+  });
+
+  @override
+  ConsumerState<GormiCard> createState() => _GormiCardState();
+}
+
+class _GormiCardState extends ConsumerState<GormiCard> {
+  late bool _ownIt;
+  late bool _isFavorite;
+
+  @override
+  void initState() {
+    super.initState();
+    _ownIt = widget.gormita.ownIt;
+    _isFavorite = widget.gormita.isFavorite;
+  }
+
+  @override
+  void didUpdateWidget(covariant GormiCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.gormita.ownIt != widget.gormita.ownIt) {
+      _ownIt = widget.gormita.ownIt;
+    }
+    if (oldWidget.gormita.isFavorite != widget.gormita.isFavorite) {
+      _isFavorite = widget.gormita.isFavorite;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => Card(
-          color: Colors.black,
-          shape: _buildCardShape(),
-          shadowColor: Colors.black,
-          elevation: 4,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 18),
-              const Divider(
-                height: 5,
-                color: Colors.black,
-              ),
-              _buildImage(),
-            ],
-          ),
-        ));
-  }
+    final colorScheme = Theme.of(context).colorScheme;
 
-  ShapeBorder _buildCardShape() {
-    return RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-      side: const BorderSide(
-        width: 3,
-        color: Color.fromARGB(255, 43, 43, 43),
+    return Card(
+      color: colorScheme.surfaceContainerHighest,
+      shape: _buildCardShape(colorScheme),
+      shadowColor: colorScheme.shadow,
+      elevation: 4,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 18),
+          Divider(
+            height: 5,
+            color: colorScheme.surface,
+          ),
+          _buildImage(colorScheme),
+        ],
       ),
     );
   }
 
-  void _navigateToDetail(int id) {
-    Get.toNamed('/Detail', arguments: id);
+  ShapeBorder _buildCardShape(ColorScheme colorScheme) {
+    return RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+      side: BorderSide(
+        width: 3,
+        color: colorScheme.outlineVariant,
+      ),
+    );
   }
 
-  Widget _buildImage() {
+  void _navigateToDetail(BuildContext context) {
+    context.push('/detail', extra: widget.gormita);
+  }
+
+  Widget _buildImage(ColorScheme colorScheme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,9 +87,7 @@ class GormiCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(bottom: 15),
           child: GestureDetector(
-            onTap: () {
-              _navigateToDetail(id);
-            },
+            onTap: () => _navigateToDetail(context),
             child: _buildGormitiImage(),
           ),
         ),
@@ -86,16 +97,15 @@ class GormiCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
-                  onTap: () {
-                    _navigateToDetail(id);
-                  },
-                  child: _buildNameText()),
+                onTap: () => _navigateToDetail(context),
+                child: _buildNameText(colorScheme),
+              ),
               const SizedBox(height: 16),
               Row(
                 children: [
-                  _buildPopoloText(),
+                  _buildPopoloText(colorScheme),
                   const SizedBox(width: 10),
-                  _buildSerieText()
+                  _buildSerieText(colorScheme),
                 ],
               ),
             ],
@@ -105,7 +115,7 @@ class GormiCard extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
           child: Align(
             alignment: Alignment.topRight,
-            child: _buildOwnCheck(),
+            child: _buildOwnCheck(colorScheme),
           ),
         ),
       ],
@@ -119,78 +129,76 @@ class GormiCard extends StatelessWidget {
         width: 100,
         height: 100,
         child: Image.asset(
-          image,
+          widget.gormita.image,
           height: 200,
           width: 200,
-        ), // Utilizza la proprietà img come percorso dell'immagine
+        ),
       ),
     );
   }
 
-  Widget _buildNameText() {
+  Widget _buildNameText(ColorScheme colorScheme) {
     return Text(
-      name,
+      widget.gormita.name,
       style: TextStyle(
         fontSize: 27,
         fontWeight: FontWeight.bold,
-        color: textColor,
+        color: widget.textColor,
       ),
     );
   }
 
-  Widget _buildPopoloText() {
+  Widget _buildPopoloText(ColorScheme colorScheme) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20.0),
         border: Border.all(
-          color: Colors.white,
+          color: colorScheme.outline,
           width: 1.0,
         ),
       ),
       padding: const EdgeInsets.all(8.0),
       child: Text(
-        popolo,
-        style: const TextStyle(
+        widget.gormita.popolo,
+        style: TextStyle(
           fontSize: 11,
-          color: Colors.white,
+          color: colorScheme.onSurface,
         ),
       ),
     );
   }
 
-  Widget _buildSerieText() {
+  Widget _buildSerieText(ColorScheme colorScheme) {
     return InkWell(
-      onTap: () {
-        _navigateToPeople(serie);
-      },
+      onTap: () => context.push(
+          '/popoli?serieName=${Uri.encodeComponent(widget.gormita.serie)}&serieId=0'),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.0),
-          color: Colors.lightGreen[200],
+          color: colorScheme.secondaryContainer,
         ),
         padding: const EdgeInsets.all(8.0),
         child: Text(
-          serie,
-          style: const TextStyle(
+          widget.gormita.serie,
+          style: TextStyle(
             fontSize: 11,
-            color: Colors.black,
+            color: colorScheme.onSecondaryContainer,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildOwnCheck() {
+  Widget _buildOwnCheck(ColorScheme colorScheme) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
-          onTap: () async {
-            _navigateToSearch(name.toLowerCase());
-          },
-          child: const Icon(
+          onTap: () =>
+              context.push('/search?q=${Uri.encodeComponent(widget.gormita.name)}'),
+          child: Icon(
             Icons.search,
-            color: Colors.white,
+            color: colorScheme.onSurface,
             size: 30.0,
           ),
         ),
@@ -200,44 +208,40 @@ class GormiCard extends StatelessWidget {
             GestureDetector(
               onTap: () async {
                 bool isOk =
-                    await SQLHelper().ownChangerGormita(id, !ownIt.value);
-                if (isOk) {
-                  ownIt.value = !ownIt.value;
+                    await SQLHelper().ownChangerGormita(widget.gormita.id, !_ownIt);
+                if (isOk && mounted) {
+                  setState(() {
+                    _ownIt = !_ownIt;
+                  });
+                  ref.read(gormitiDatabaseUpdateProvider.notifier).increment();
                 }
               },
               child: Icon(
-                ownIt.value
-                    ? Icons.expand_circle_down_outlined
-                    : Icons.add_circle,
-                color: ownIt.value ? Colors.green : Colors.grey,
+                _ownIt ? Icons.expand_circle_down_outlined : Icons.add_circle,
+                color: _ownIt ? colorScheme.primary : colorScheme.outline,
                 size: 35.0,
               ),
             ),
             GestureDetector(
               onTap: () async {
                 bool isOk =
-                    await SQLHelper().favoriteGormita(id, !isFavorite.value);
-                if (isOk) {
-                  isFavorite.value = !isFavorite.value;
+                    await SQLHelper().favoriteGormita(widget.gormita.id, !_isFavorite);
+                if (isOk && mounted) {
+                  setState(() {
+                    _isFavorite = !_isFavorite;
+                  });
+                  ref.read(gormitiDatabaseUpdateProvider.notifier).increment();
                 }
               },
               child: Icon(
-                isFavorite.value ? Icons.star : Icons.star_border,
-                color: isFavorite.value ? Colors.yellow : Colors.grey,
+                _isFavorite ? Icons.star : Icons.star_border,
+                color: _isFavorite ? Colors.amber : colorScheme.outline,
                 size: 35.0,
               ),
-            )
+            ),
           ],
         ),
       ],
     );
-  }
-
-  void _navigateToPeople(String serieName) {
-    Get.toNamed('/Popoli', arguments: serieName);
-  }
-
-  void _navigateToSearch(String name) {
-    Get.toNamed('/SearchBar', arguments: name);
   }
 }
